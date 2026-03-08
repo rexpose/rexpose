@@ -48,7 +48,7 @@ async fn forwarding_udp(encrypted_server: bool, encrypted_client: bool, send: &s
     let mut server_handle = start_server(server_port, mgmt_port, encrypted_server)?;
     sleep(Duration::from_millis(500)).await;
 
-    let mut client_cmd = Command::new(assert_cmd::Command::cargo_bin("rexpose")?.get_program());
+    let mut client_cmd = Command::new(assert_cmd::cargo::cargo_bin_cmd!().get_program());
     client_cmd.arg("-P")
         .arg(SECRET)
         .arg("-c")
@@ -81,7 +81,7 @@ async fn forwarding_udp(encrypted_server: bool, encrypted_client: bool, send: &s
 }
 
 fn start_server(server_port: u16, mgmt_port: u16, encrypted: bool) -> Result<Child, Box<dyn Error>> {
-    let mut server_cmd = Command::new(assert_cmd::Command::cargo_bin("rexpose")?.get_program());
+    let mut server_cmd = Command::new(assert_cmd::cargo::cargo_bin_cmd!().get_program());
     server_cmd.arg("-s")
         .arg("-c")
         .arg(CERT_PATH)

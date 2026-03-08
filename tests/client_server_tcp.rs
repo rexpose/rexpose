@@ -48,7 +48,7 @@ async fn do_not_trust_unknown_certificate() -> Result<(), Box<dyn std::error::Er
     let mut server_handle = start_server(server_port, mgmt_port, false)?;
     sleep(Duration::from_millis(1000)).await;
 
-    let mut client_cmd = assert_cmd::Command::cargo_bin("rexpose")?;
+    let mut client_cmd = assert_cmd::cargo::cargo_bin_cmd!();
     client_cmd.arg("-P")
         .arg(SECRET)
         .arg("-p")
@@ -73,7 +73,7 @@ async fn wrong_pw_test() -> Result<(), Box<dyn std::error::Error>> {
     let mut server_handle = start_server(server_port, mgmt_port, false)?;
     sleep(Duration::from_millis(1000)).await;
 
-    let mut client_cmd = assert_cmd::Command::cargo_bin("rexpose")?;
+    let mut client_cmd = assert_cmd::cargo::cargo_bin_cmd!();
     client_cmd.arg("-P")
         .arg("wrong")
         .arg("-c")
@@ -102,7 +102,7 @@ async fn close_client_on_server_kill() -> Result<(), Box<dyn std::error::Error>>
     let mut server_handle = start_server(server_port, mgmt_port, false)?;
     sleep(Duration::from_millis(1000)).await;
 
-    let mut client_cmd = Command::new(assert_cmd::Command::cargo_bin("rexpose")?.get_program());
+    let mut client_cmd = Command::new(assert_cmd::cargo::cargo_bin_cmd!().get_program());
     client_cmd.arg("-P")
         .arg(SECRET)
         .arg("-c")
@@ -134,7 +134,7 @@ async fn forwarding_tcp(encrypted_server: bool, encrypted_client: bool, send: &s
     let mut server_handle = start_server(server_port, mgmt_port, encrypted_server)?;
     sleep(Duration::from_millis(1000)).await;
 
-    let mut client_cmd = Command::new(assert_cmd::Command::cargo_bin("rexpose")?.get_program());
+    let mut client_cmd = Command::new(assert_cmd::cargo::cargo_bin_cmd!().get_program());
     client_cmd.arg("-P")
         .arg(SECRET)
         .arg("-c")
@@ -166,7 +166,7 @@ async fn forwarding_tcp(encrypted_server: bool, encrypted_client: bool, send: &s
 }
 
 fn start_server(server_port: u16, mgmt_port: u16, encrypted: bool) -> Result<Child, Box<dyn Error>> {
-    let mut server_cmd = Command::new(assert_cmd::Command::cargo_bin("rexpose")?.get_program());
+    let mut server_cmd = Command::new(assert_cmd::cargo::cargo_bin_cmd!().get_program());
     server_cmd.arg("-s")
         .arg("-c")
         .arg(CERT_PATH)

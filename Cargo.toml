@@ -1,6 +1,6 @@
 [package]
 name = "rexpose"
-version = "1.2.4"
+version = "1.2.5"
 edition = "2024"
 description = "A reverse proxy to expose TCP and UDP services behind any NAT via a public server."
 repository = "https://github.com/k4i6/rexpose"
