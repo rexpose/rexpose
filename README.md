@@ -39,7 +39,7 @@ To start a server accepting and forwarding TCP connections on port 80 to the cli
 
 The server needs access to a valid certificate and the associated private key to communicate with the client over TLS.
 An example for the generation of a self signed certificate for the hostname 'localhost' is provided as following:
-`openssl req  -nodes -new -x509 -days 7 -keyout /etc/ssl/private/key.key -out /etc/ssl/certs/cert.cert -addext "subjectAltName = DNS:localhost" -subj "/CN=localhost" -addext "extendedKeyUsage = serverAuth, clientAuth" -addext "keyUsage = digitalSignature,keyAgreement"`
+`openssl req  -nodes -new -x509 -days 7 -keyout /etc/ssl/private/key.key -out /etc/ssl/certs/cert.cert -addext "basicConstraints = CA:FALSE" -addext "subjectAltName = DNS:localhost" -subj "/CN=localhost" -addext "extendedKeyUsage = serverAuth, clientAuth" -addext "keyUsage = digitalSignature,keyAgreement"`
 
 ### rexpose.app
 

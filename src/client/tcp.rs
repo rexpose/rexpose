@@ -1,7 +1,7 @@
 use std::{error::Error, time::Duration};
 
 use tokio::{io::{self, AsyncReadExt, AsyncWriteExt}, net::TcpStream, task::JoinHandle, time::timeout};
-use tokio_native_tls::TlsStream;
+use tokio_rustls::{client::TlsStream, rustls::pki_types::ServerName};
 
 use crate::{client::{Client, ConnectedClient, send_password}, common::{protocol::{AuthorizedConnection, Connectable, MgmtMessage, UnauthorizedConnection}, tcp_utils::forward_streams}};
 
@@ -28,8 +28,9 @@ impl AuthorizedClient {
         return Ok(stream);
     }
 
-    async fn start_tls(&self, stream: TcpStream) -> Result<TlsStream<TcpStream>, tokio_native_tls::native_tls::Error> {
-        let tls_stream = self.client.client.tls_connector.connect(&self.client.client.server_address, stream).await?;
+    async fn start_tls(&self, stream: TcpStream) -> Result<TlsStream<TcpStream>, std::io::Error> {
+        let server_name = ServerName::try_from(self.client.client.server_address.clone()).unwrap();
+        let tls_stream = self.client.client.tls_connector.connect(server_name, stream).await?;
         return Ok(tls_stream);
     }
 

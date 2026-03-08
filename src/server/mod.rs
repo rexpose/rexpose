@@ -1,12 +1,12 @@
 pub mod tcp;
 pub mod udp;
 
-use std::{error::Error, fmt, net::SocketAddr, time::Duration};
+use std::{error::Error, fmt, net::SocketAddr, sync::Arc, time::Duration};
 
 use tokio::{io::{self, AsyncReadExt, AsyncWriteExt}, net::{TcpListener, TcpStream}, time::timeout};
-use tokio_native_tls::{TlsAcceptor, TlsStream};
+use tokio_rustls::{TlsAcceptor, rustls::ServerConfig, server::TlsStream};
 
-use crate::common::{keystore::import_identity, protocol::{MgmtMessage, MGMT_MESSAGE_SIZE}};
+use crate::common::{keystore::{import_cert_chain, import_private_key}, protocol::{MGMT_MESSAGE_SIZE, MgmtMessage}};
 
 pub const WRITE_TIMEOUT: Duration = Duration::from_secs(1);
 const READ_TIMEOUT: Duration = Duration::from_secs(1);
@@ -19,9 +19,10 @@ pub struct Server {
 
 impl Server {
     pub fn new(key_path: &str, certificate_path: &str, mgmt_port: &u16) -> Server {
-        let identity = import_identity(key_path, certificate_path);
-        let tls_acceptor =
-            tokio_native_tls::TlsAcceptor::from(tokio_native_tls::native_tls::TlsAcceptor::builder(identity).build().unwrap());
+        let config = ServerConfig::builder()
+            .with_no_client_auth()
+            .with_single_cert(import_cert_chain(certificate_path), import_private_key(key_path));
+        let tls_acceptor = TlsAcceptor::from(Arc::new(config.unwrap()));
         return Self { mgmt_port: *mgmt_port, tls_acceptor: tls_acceptor }
     }
 

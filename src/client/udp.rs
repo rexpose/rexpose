@@ -6,6 +6,7 @@ use std::time::SystemTime;
 use std::{collections::HashMap, error::Error, net::SocketAddr, sync::Arc, time::{Duration}};
 
 use tokio::{io::{self, AsyncRead, AsyncWrite, AsyncWriteExt}, net::{TcpStream, UdpSocket}, sync::{Mutex, RwLock}, task::JoinHandle, time::{sleep, timeout}};
+use tokio_rustls::rustls::pki_types::ServerName;
 
 use crate::{client::{Client, ConnectedClient}, common::protocol::{addressed_udp_message, read_addressed_udp_message, AuthorizedConnection, Connectable, MgmtMessage, UnauthorizedConnection, UDP_BUFFER_SIZE}};
 
@@ -161,7 +162,8 @@ impl AuthorizedConnection for AuthorizedUdpClient {
         let server_stream = TcpStream::connect(self.client.client.tcp_address()).await?;
 
         let (write_handle, keep_alive_handle) = if encrypted {
-            let tls_stream = self.client.client.tls_connector.connect(&self.client.client.server_address, server_stream).await?;
+        let server_name = ServerName::try_from(self.client.client.server_address.clone()).unwrap();
+            let tls_stream = self.client.client.tls_connector.connect(server_name, server_stream).await?;
             let (server_read, server_write) = io::split(tls_stream);
             let server_write = Arc::new(Mutex::new(server_write));
             let write_handle = tokio::spawn(AuthorizedUdpClient::handle_udp_write(server_read, server_write.clone(), *forwarded_port));
