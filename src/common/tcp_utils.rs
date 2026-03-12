@@ -31,6 +31,7 @@ async fn copy<R: AsyncRead + Unpin + Send, W: AsyncWrite + Unpin>(src: &mut R, d
             break;
         }
         dst.write_all(&buf[..size]).await?;
+        dst.flush().await?
     }
     return Ok(());
 }
