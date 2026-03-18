@@ -14,16 +14,13 @@ const READ_TIMEOUT: Duration = Duration::from_secs(1);
 
 pub struct Server {
     mgmt_port: u16,
-    tls_acceptor: TlsAcceptor,
+    key_path: String,
+    certificate_path: String,
 }
 
 impl Server {
     pub fn new(key_path: &str, certificate_path: &str, mgmt_port: &u16) -> Server {
-        let config = ServerConfig::builder()
-            .with_no_client_auth()
-            .with_single_cert(import_cert_chain(certificate_path), import_private_key(key_path));
-        let tls_acceptor = TlsAcceptor::from(Arc::new(config.unwrap()));
-        return Self { mgmt_port: *mgmt_port, tls_acceptor: tls_acceptor }
+        return Self { mgmt_port: *mgmt_port, key_path: key_path.to_string(), certificate_path: certificate_path.to_string() }
     }
 
     async fn connect_internal(self) -> Result<UnauthorizedServer, Box<dyn Error>> {
@@ -31,14 +28,18 @@ impl Server {
         log::debug!("listening for client to connect");
         let (stream, address) = listener.accept().await?;
         log::debug!("client connected, starting tls connection");
-        let tls_stream = self.tls_acceptor.accept(stream).await?;
+        let config = ServerConfig::builder()
+            .with_no_client_auth()
+            .with_single_cert(import_cert_chain(&self.certificate_path), import_private_key(&self.key_path));
+        let tls_acceptor = TlsAcceptor::from(Arc::new(config.unwrap()));
+        let tls_stream = tls_acceptor.accept(stream).await?;
         log::debug!("tls connection established");
-        return Ok(UnauthorizedServer { mgmt_stream: tls_stream, mgmt_listener: listener, connected_address: address, server: self });
+        return Ok(UnauthorizedServer { tls_acceptor: tls_acceptor, mgmt_stream: tls_stream, mgmt_listener: listener, connected_address: address });
     }
 }
 
 pub struct UnauthorizedServer {
-    server: Server,
+    tls_acceptor: TlsAcceptor,
     mgmt_stream: TlsStream<TcpStream>,
     mgmt_listener: TcpListener,
     connected_address: SocketAddr,

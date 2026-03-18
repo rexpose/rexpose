@@ -94,7 +94,7 @@ impl AuthorizedConnection for AuthorizedServer {
                 };
                 log::debug!("forward connection established");
                 let (join_handle_1, join_handle_2) = if encrpyted {
-                    let mut tls_stream = match timeout(TLS_ACCEPTOR_TIMEOUT, self.server.server.tls_acceptor.accept(forward_stream)).await {
+                    let mut tls_stream = match timeout(TLS_ACCEPTOR_TIMEOUT, self.server.tls_acceptor.accept(forward_stream)).await {
                         Ok(Ok(stream)) => stream,
                         Ok(Err(err )) => {
                             log::warn!("error while starting tls: {}", err);

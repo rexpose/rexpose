@@ -107,7 +107,7 @@ impl AuthorizedConnection for AuthorizedUdpServer {
         let stop = Arc::new(AtomicBool::new(false));
 
         let (read_handle, write_handle) = if encrypted {
-            let tls_stream = self.server.server.tls_acceptor.accept(client_stream).await?;
+            let tls_stream = self.server.tls_acceptor.accept(client_stream).await?;
             let (client_read, client_write) = io::split(tls_stream);
             let read_handle = tokio::spawn(AuthorizedUdpServer::handle_udp_read(client_write, udp_socket.clone(), stop.clone()));
             let write_handle = tokio::spawn(AuthorizedUdpServer::handle_udp_write(client_read, udp_socket.clone(), stop.clone()));
