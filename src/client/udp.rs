@@ -163,7 +163,7 @@ impl AuthorizedConnection for AuthorizedUdpClient {
 
         let (write_handle, keep_alive_handle) = if encrypted {
         let server_name = ServerName::try_from(self.client.client.server_address.clone()).unwrap();
-            let tls_stream = self.client.client.tls_connector.connect(server_name, server_stream).await?;
+            let tls_stream = self.client.tls_connector.connect(server_name, server_stream).await?;
             let (server_read, server_write) = io::split(tls_stream);
             let server_write = Arc::new(Mutex::new(server_write));
             let write_handle = tokio::spawn(AuthorizedUdpClient::handle_udp_write(server_read, server_write.clone(), *forwarded_port));

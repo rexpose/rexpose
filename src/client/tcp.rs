@@ -30,7 +30,7 @@ impl AuthorizedClient {
 
     async fn start_tls(&self, stream: TcpStream) -> Result<TlsStream<TcpStream>, std::io::Error> {
         let server_name = ServerName::try_from(self.client.client.server_address.clone()).unwrap();
-        let tls_stream = self.client.client.tls_connector.connect(server_name, stream).await?;
+        let tls_stream = self.client.tls_connector.connect(server_name, stream).await?;
         return Ok(tls_stream);
     }
 
