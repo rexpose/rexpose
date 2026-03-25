@@ -103,7 +103,7 @@ impl AuthorizedUdpClient {
     async fn handle_udp_write<R: AsyncRead + Unpin, W: AsyncWrite + Unpin + Send + 'static>(mut server_read: R, server_write: Arc<Mutex<W>>, forwarded_port: u16) {
         let mut connections: HashMap<SocketAddr, UdpConnection> = HashMap::new();
         loop {
-            connections.retain(|_, connection| connection.read_handle.is_finished());
+            connections.retain(|_, connection| !connection.read_handle.is_finished());
             let (addr, msg) = match read_addressed_udp_message(&mut server_read).await {
                 Ok(result) => result,
                 Err(err) => {
