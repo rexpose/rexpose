@@ -126,6 +126,6 @@ impl AuthorizedConnection for AuthorizedUdpServer {
     }
 
     async fn shutdown(self) {
-        todo!()
+        // nothing to do
     }
 }
