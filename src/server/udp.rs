@@ -29,7 +29,7 @@ impl AuthorizedUdpServer {
             }
             let mut msg_buf: [u8; MGMT_MESSAGE_SIZE] = [0; MGMT_MESSAGE_SIZE];
             if let Err(err) = client_read.read_exact(&mut msg_buf).await {
-                log::error!("failred to read client stream: {}", err);
+                log::error!("failed to read client stream: {}", err);
                 break;
             }
             if !msg_buf.eq(MgmtMessage::UdpStart.message()) {
